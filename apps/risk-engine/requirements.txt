@@ -1,0 +1,9 @@
+fastapi
+uvicorn
+pydantic
+presidio-analyzer
+presidio-anonymizer
+spacy==3.7.4
+numpy
+scikit-learn
+httpx
