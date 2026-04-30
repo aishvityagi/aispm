@@ -5,7 +5,9 @@ __pycache__/
 .venv/
 
 # Build outputs
-dist/
+apps/gateway/dist/
+apps/dashboard/.next/
+apps/dashboard/out/
 .next/
 out/
 build/
