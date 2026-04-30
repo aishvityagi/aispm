@@ -12,12 +12,14 @@ const kafka = new kafkajs_1.Kafka({
 });
 const producer = kafka.producer();
 let producerConnected = false;
-producer.connect().then(() => {
-    producerConnected = true;
-    console.log('[RateLimiter] Kafka producer connected');
-}).catch((err) => {
-    console.error('[RateLimiter] Kafka producer connection failed:', err);
-});
+if (KAFKA_BROKER) {
+    producer.connect().then(() => {
+        producerConnected = true;
+        console.log('[RateLimiter] Kafka producer connected');
+    }).catch((err) => {
+        console.warn('[RateLimiter] Kafka not available — rate limit anomalies will not be published');
+    });
+}
 async function checkUserRateLimit(fastify, userId) {
     const key = `rate_limit:user:${userId}`;
     try {

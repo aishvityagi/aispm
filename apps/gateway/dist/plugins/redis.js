@@ -9,16 +9,19 @@ const fp = require("fastify-plugin");
 const ioredis_1 = __importDefault(require("ioredis"));
 const crypto_1 = __importDefault(require("crypto"));
 const redisPlugin = async (fastify) => {
-    const redis = new ioredis_1.default({
-        host: process.env.REDIS_HOST || "localhost",
-        port: parseInt(process.env.REDIS_PORT || "6379"),
-        lazyConnect: true,
-        retryStrategy: (times) => {
-            // Retry with exponential backoff, max 3 seconds
-            const delay = Math.min(times * 200, 3000);
-            return delay;
-        },
-    });
+    const redisUrl = process.env.REDIS_URL;
+    const redis = redisUrl
+        ? new ioredis_1.default(redisUrl, {
+            lazyConnect: true,
+            tls: redisUrl.startsWith("rediss://") ? {} : undefined,
+            retryStrategy: (times) => Math.min(times * 200, 3000),
+        })
+        : new ioredis_1.default({
+            host: process.env.REDIS_HOST || "localhost",
+            port: parseInt(process.env.REDIS_PORT || "6379"),
+            lazyConnect: true,
+            retryStrategy: (times) => Math.min(times * 200, 3000),
+        });
     redis.on("connect", () => fastify.log.info("Redis connected"));
     redis.on("error", (err) => fastify.log.warn(`Redis error: ${err.message}`));
     await redis.connect().catch((err) => {
